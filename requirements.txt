@@ -1,3 +1,4 @@
+Python==3.8.8
 fastapi==0.79.0
 numpy==1.18.3
 pandas==1.2.4
