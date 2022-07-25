@@ -6,6 +6,7 @@ from sklearn.neighbors import NearestNeighbors
 import pymysql
 import json
 import re
+import time
 
 
 class create_dict(dict):
@@ -282,6 +283,7 @@ class backend:
         try:
             self.mycursor.execute(
                 f"SELECT * from orders where USER_ID='{user_id}' ORDER BY ODER_ID DESC")
+            time.sleep(2)
             data = self.mycursor.fetchall()
             mydata = []
             for row in data:
