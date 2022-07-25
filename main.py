@@ -106,7 +106,7 @@ async def get_all_orders():
     return connection.get_all_orders()
 
 
-@app.get("/user-orders/{user_id}")
+@app.get("/user_orders/{user_id}")
 async def get_orders_users(user_id: int):
     return connection.get_user_orders(user_id)
 
