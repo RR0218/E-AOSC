@@ -281,14 +281,13 @@ class backend:
 
     def get_user_orders(self, user_id):
         try:
-            self.mycursor.execute(
-                f"SELECT * from orders where USER_ID='{user_id}'")
-            time.sleep(1)
+            self.mycursor.execute(f"SELECT * FROM orders")
             data = self.mycursor.fetchall()
             mydata = []
             for row in data:
-                mydata.append({"order_id": row[0], "user_id": row[1], "lawyer_id": row[2],
-                              "lawyer_name": row[3], "field": row[4], "status": row[5]})
+                if row[1] == user_id:
+                    mydata.append({"order_id": row[0], "user_id": row[1], "lawyer_id": row[2],
+                                  "lawyer_name": row[3], "field": row[4], "status": row[5]})
             return mydata
         except Exception as e:
             return e
