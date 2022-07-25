@@ -55,6 +55,7 @@ connection = backend()
 ##################### GET ####################
 origins = [
     "http://localhost:3000",
+    "https://e-aosc.herokuapp.com",
 ]
 
 app.add_middleware(
