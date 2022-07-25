@@ -8,7 +8,6 @@ import json
 import re
 import time
 
-
 class create_dict(dict):
 
     # __init__ function
