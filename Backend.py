@@ -282,8 +282,8 @@ class backend:
     def get_user_orders(self, user_id):
         try:
             self.mycursor.execute(
-                f"SELECT * from orders where USER_ID='{user_id}' ORDER BY ODER_ID DESC")
-            time.sleep(2)
+                f"SELECT * from orders where USER_ID='{user_id}'")
+            time.sleep(1)
             data = self.mycursor.fetchall()
             mydata = []
             for row in data:
