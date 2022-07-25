@@ -504,11 +504,7 @@ class backend:
             return e
 
     def verify(self, email, number, password, lawyer=False, user=False):
-        try:
-            response = verify_password(email, password)
-            if response == "No Record Found":
-                return response
-               
+        try:        
             regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
             if not(re.fullmatch(regex, email)):
                 return "Invalid Email"
@@ -528,9 +524,6 @@ class backend:
                     return "True"
 
             elif lawyer:
-                response = verify_password(email, password)
-                if response == "No Record Found":
-                    return response
                 self.mycursor.execute(
                     f"SELECT * from lawyers where EMAIL = '{email}' or NUMBER = {number}")
                 results = self.mycursor.fetchall()
