@@ -283,6 +283,7 @@ class backend:
         try:
             self.mycursor.execute(f"SELECT * FROM orders")
             data = self.mycursor.fetchall()
+            print(data)
             mydata = []
             for row in data:
                 if row[1] == user_id:
