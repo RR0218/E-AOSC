@@ -6,7 +6,7 @@ from sklearn.neighbors import NearestNeighbors
 import pymysql
 import json
 import re
-import time
+
 
 class create_dict(dict):
 
@@ -181,7 +181,7 @@ class backend:
             self.mycursor.execute(query, values)
             self.db.commit()
             self.cal_avg_rating(lawyer_id)
-            return "User Added Successfully"
+            return "Rating Added Successfully"
         except Exception as err:
             return("Something went wrong: {}".format(err))
 
@@ -280,14 +280,13 @@ class backend:
 
     def get_user_orders(self, user_id):
         try:
-            self.mycursor.execute(f"SELECT * FROM orders")
+            self.mycursor.execute(
+                f"SELECT * from orders where USER_ID='{user_id}' ORDER BY ODER_ID DESC")
             data = self.mycursor.fetchall()
-            print(data)
             mydata = []
             for row in data:
-                if row[1] == user_id:
-                    mydata.append({"order_id": row[0], "user_id": row[1], "lawyer_id": row[2],
-                                  "lawyer_name": row[3], "field": row[4], "status": row[5]})
+                mydata.append({"order_id": row[0], "user_id": row[1], "lawyer_id": row[2],
+                              "lawyer_name": row[3], "field": row[4], "status": row[5]})
             return mydata
         except Exception as e:
             return e
@@ -373,44 +372,33 @@ class backend:
         except Exception as e:
             return e
 
-    # def recommend(self, lawyer_id, similar_score):
-    #     # index fetch
-    #     index = np.where(self.df.index == lawyer_id)[0][0]
-    #     similar_items = sorted(
-    #         list(enumerate(similar_score[index])), key=lambda x: x[1], reverse=True)[1:3]
-    #     items = []
-    #     count = 0
-    #     for i in similar_items:
-    #         data = {}
-    #         temp_df = self.lawyers[self.lawyers['LAWYER_ID']
-    #                                == self.df.index[i[0]]]
-    #         data['lawyer_id'] = list(temp_df['LAWYER_ID'])[0]
-    #         data['lawyer_name'] = list(temp_df['NAME'])[0]
-    #         data['country'] = list(temp_df['COUNTRY'])[0]
-    #         data['city'] = list(temp_df['CITY'])[0]
-    #         data['picture'] = list(temp_df['PROFILE_PIC'])[0]
-    #         data['speciality'] = list(temp_df['AREA_OF_PRACTICE'])[0]
-    #         data['oders_completed'] = list(temp_df['ODERS_COMPLETED'])[0]
-    #         items.append(data)
-    #         count += 1
-    #     return items
-
-    def KNN_recommend(self, lawyer_id):
-        lawyer_id = lawyer_id - 1
-        df_matrix = csr_matrix(self.df.values)
-        model_knn = NearestNeighbors(metric='cosine', algorithm='brute')
-        model_knn.fit(df_matrix)
-        distances, indices = model_knn.kneighbors(
-            self.df.iloc[lawyer_id, :].values.reshape(1, -1), n_neighbors=4)
-        lawyer_ids = list(indices[0])[1:]
+    def recommend(self, lawyer_id, similar_score):
+        # index fetch
+        index = np.where(self.df.index == lawyer_id)[0][0]
+        similar_items = sorted(
+            list(enumerate(similar_score[index])), key=lambda x: x[1], reverse=True)[1:4]
         items = []
-        for id in lawyer_ids:
-            items.append(self.get_lawyer(id))
+        for i in similar_items:
+            items.append(self.get_lawyer(self.df.index[i[0]]))
         return items
 
-    # def get_recommendations(self, lawyer_id):
-    #     similar_score = cosine_similarity(self.df)
-    #     return self.recommend(lawyer_id, similar_score)
+    # def KNN_recommend(self, lawyer_id):
+    #     lawyer_id = lawyer_id - 1
+    #     df_matrix = csr_matrix(self.df.values)
+    #     model_knn = NearestNeighbors(metric='cosine', algorithm='brute')
+    #     model_knn.fit(df_matrix)
+    #     distances, indices = model_knn.kneighbors(
+    #         self.df.iloc[lawyer_id, :].values.reshape(1, -1), n_neighbors=4)
+    #     lawyer_ids = list(indices[0])[1:]
+    #     items = []
+    #     print(distances, indices)
+    #     for id in lawyer_ids:
+    #         items.append(self.get_lawyer(id))
+    #     return items
+
+    def get_recommendations(self, lawyer_id):
+        similar_score = cosine_similarity(self.df)
+        return self.recommend(lawyer_id, similar_score)
 
     def get_average_rating(self, lawyer_id):
         ratings = self.df.T[lawyer_id].tolist()
@@ -479,7 +467,6 @@ class backend:
 
     def order_completed(self, order_id):
         try:
-            status = "Completed"
             self.mycursor.execute(
                 f"UPDATE orders SET orders.STATUS = \'Completed\' where orders.ODER_ID={order_id}")
             self.db.commit()
@@ -505,7 +492,7 @@ class backend:
             return e
 
     def verify(self, email, number, password, lawyer=False, user=False):
-        try:        
+        try:
             regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
             if not(re.fullmatch(regex, email)):
                 return "Invalid Email"
