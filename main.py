@@ -25,6 +25,11 @@ class User(BaseModel):
     city: str
 
 
+class UpdatePassword(BaseModel):
+    user_id: int
+    password: str
+
+
 class Lawyer(BaseModel):
     name: str
     email: str
@@ -55,7 +60,6 @@ connection = backend()
 ##################### GET ####################
 origins = [
     "http://localhost:3000",
-    "https://e-aosc.herokuapp.com",
 ]
 
 app.add_middleware(
@@ -101,12 +105,13 @@ async def get_all_users():
 async def get_user_orders(user_id: int):
     return connection.get_orders(user_id)
 
+
 @app.get("/orders")
 async def get_all_orders():
     return connection.get_all_orders()
 
 
-@app.get("/user_orders/{user_id}")
+@app.get("/user-orders/{user_id}")
 async def get_orders_users(user_id: int):
     return connection.get_user_orders(user_id)
 
@@ -145,7 +150,7 @@ async def increment_order(lawyer_id: int):
 async def get_highest_rated_lawyer(user_id: int):
     lawyer_id = connection.get_highest_rating_lawyer(user_id)
     if str(lawyer_id).isnumeric():
-        return connection.KNN_recommend(lawyer_id)
+        return connection.get_recommendations(lawyer_id)
     return "No Recomendations Found"
 
 
@@ -155,8 +160,8 @@ async def search(searchstr: str):
 
 
 @app.get('/recommend/{lawyer_id}')
-async def KNN_recommend(lawyer_id: int):
-    return connection.KNN_recommend(lawyer_id)
+async def recommend(lawyer_id: int):
+    return connection.get_recommendations(lawyer_id)
 
 ################ POST ########################
 
@@ -190,12 +195,12 @@ async def insert_rating(user_rating: Rating):
 ################# UPDATE ###########################
 
 
-@app.get("/update_user_password/")
-async def update_user_password(user_id: int, password: str):
-    return connection.update_user_password(user_id, password)
+@app.patch("/update_user_password/")
+async def update_password(ob: UpdatePassword):
+    return connection.update_user_password(ob.user_id, ob.password)
 
 
-@app.get("/update_lawyer_password/")
+@app.put("/update_lawyer_password/")
 async def update_lawyer_password(lawyer_id: int, password: str):
     return connection.update_lawyer_password(lawyer_id, password)
 
@@ -215,6 +220,7 @@ async def delete_lawyer(lawyer_id: int):
 @app.get('/delete_rating/{user_id}')
 async def delete_rating(user_id: int):
     return connection.delete_rating(user_id)
+
 
 @app.get('/delete_order/{order_id}')
 async def delete_order(order_id: int):
