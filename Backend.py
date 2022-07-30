@@ -147,7 +147,7 @@ class backend:
             verification = self.verify(
                 lawyer_email, lawyer_phone, lawyer_password, lawyer=True)
             if verification == "True":
-                query = "INSERT INTO lawyers (NAME, EMAIL, NUMBER, PASSWORD, REGISTERED_AT,COUNTRY,STATE,PROFILE_PIC,AREA_OF_PRACTICE,ODERS_COMPLETED)  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                query = "INSERT INTO lawyers (NAME, EMAIL, NUMBER, PASSWORD, REGISTERED_AT,STATE,CITY,PROFILE_PIC,AREA_OF_PRACTICE,ODERS_COMPLETED)  VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
                 values = (lawyer_name, lawyer_email, lawyer_phone,
                           lawyer_password, registered_time, country, city, profile_pic, area_of_practice, 0)
                 self.mycursor.execute(query, values)
